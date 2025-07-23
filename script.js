@@ -1,75 +1,48 @@
-// Hugging Face Token (optional: use a proxy server if needed)
-const headers = {
-  Authorization: "Bearer YOUR_HUGGINGFACE_TOKEN", // optional if public model
-  "Content-Type": "application/json"
-};
-
 async function analyzeDiary() {
   const text = document.getElementById("diaryInput").value;
 
-  // Sentiment Analysis
-  const sentiment = await fetch(
-    "https://api-inference.huggingface.co/models/cardiffnlp/twitter-roberta-base-sentiment",
-    {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ inputs: text })
-    }
-  ).then(res => res.json());
+  if (!text.trim()) {
+    alert("Please write something first.");
+    return;
+  }
 
-  const mood = sentiment[0]?.[0]?.label || "Unknown";
-  document.getElementById("moodResult").innerText = mood;
+  // Sentiment
+  try {
+    const sentiment = await fetch(
+      "https://api-inference.huggingface.co/models/distilbert-base-uncased-finetuned-sst-2-english",
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ inputs: text })
+      }
+    ).then(res => res.json());
 
-  // Summarization
-  const summary = await fetch(
-    "https://api-inference.huggingface.co/models/facebook/bart-large-cnn",
-    {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ inputs: text })
-    }
-  ).then(res => res.json());
+    const mood = sentiment[0]?.label || "Unknown";
+    document.getElementById("moodResult").innerText = mood;
+  } catch (err) {
+    document.getElementById("moodResult").innerText = "Error analyzing mood.";
+    console.error("Sentiment error:", err);
+  }
 
-  const summarized = summary?.[0]?.summary_text || "Not available.";
-  document.getElementById("summaryResult").innerText = summarized;
+  // Summary
+  try {
+    const summary = await fetch(
+      "https://api-inference.huggingface.co/models/facebook/bart-large-cnn",
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ inputs: text })
+      }
+    ).then(res => res.json());
 
-  // Prompt suggestion (basic logic)
-  let prompt = "Keep going!";
-  if (mood.includes("NEGATIVE")) prompt = "Deep breaths. You're doing your best.";
-  else if (mood.includes("POSITIVE")) prompt = "You're on a roll today!";
-  else prompt = "Stay mindful. You've got this.";
+    const summarized = summary?.[0]?.summary_text || "Not available.";
+    document.getElementById("summaryResult").innerText = summarized;
+  } catch (err) {
+    document.getElementById("summaryResult").innerText = "Error summarizing.";
+    console.error("Summary error:", err);
+  }
 
+  // Prompt Suggestion
+  let prompt = "Stay mindful. You've got this.";
   document.getElementById("promptResult").innerText = prompt;
 }
-
-// To-Do List Functions
-function addTask() {
-  const taskInput = document.getElementById("taskInput");
-  const task = taskInput.value.trim();
-  if (task) {
-    const li = document.createElement("li");
-    li.innerHTML = `<input type="checkbox" /> ${task}`;
-    document.getElementById("taskList").appendChild(li);
-    saveTasks();
-    taskInput.value = "";
-  }
-}
-
-function clearTasks() {
-  document.getElementById("taskList").innerHTML = "";
-  localStorage.removeItem("tasks");
-}
-
-function saveTasks() {
-  const tasks = document.getElementById("taskList").innerHTML;
-  localStorage.setItem("tasks", tasks);
-}
-
-function loadTasks() {
-  const saved = localStorage.getItem("tasks");
-  if (saved) {
-    document.getElementById("taskList").innerHTML = saved;
-  }
-}
-
-window.onload = loadTasks;

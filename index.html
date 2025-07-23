@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MindScribe - Smart Diary</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>🧠 MindScribe</h1>
+    <p>Reflect. Track. Improve.</p>
+
+    <section>
+      <h2>📓 Your Diary Entry</h2>
+      <textarea id="diaryInput" placeholder="Write about your day..."></textarea>
+      <button onclick="analyzeDiary()">Analyze Entry</button>
+    </section>
+
+    <section id="nlpResults">
+      <h3>🧠 NLP Insights</h3>
+      <p><strong>Mood:</strong> <span id="moodResult">–</span></p>
+      <p><strong>Summary:</strong> <span id="summaryResult">–</span></p>
+      <p><strong>Prompt:</strong> <span id="promptResult">–</span></p>
+    </section>
+
+    <section>
+      <h2>🗒️ To-Do List</h2>
+      <input type="text" id="taskInput" placeholder="New task..." />
+      <button onclick="addTask()">Add Task</button>
+      <ul id="taskList"></ul>
+      <button onclick="clearTasks()">Clear All</button>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
